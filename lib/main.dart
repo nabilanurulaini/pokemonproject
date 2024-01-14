@@ -143,7 +143,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
         final String url =
             'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png';
 
-        Names.add(Name(name: name,  imageUrl: url));
+        Names.add(Name(name: name, imageUrl: url));
       }
 
       return Names;
@@ -166,7 +166,6 @@ class ExampleParallax extends StatelessWidget {
           Row(
             children: [
               const SizedBox(width: 20, height: 24),
-              
             ],
           ),
           for (final Name in Names)
@@ -181,15 +180,12 @@ class ExampleParallax extends StatelessWidget {
 }
 
 class NameListItem extends StatelessWidget {
-  NameListItem({
-    Key? key,
-    required this.imageUrl,
-    required this.name
-  }) : super(key: key);
+  NameListItem({Key? key, required this.imageUrl, required this.name})
+      : super(key: key);
 
   final String imageUrl;
   final String name;
-   final GlobalKey _backgroundImageKey = GlobalKey();
+  final GlobalKey _backgroundImageKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -259,8 +255,17 @@ class NameListItem extends StatelessWidget {
           SizedBox(width: 6), // Adjust spacing between text and button
           ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PokemonDetailPage(photoUrl: imageUrl, name: name, ability: "Tackle", weight: 10.2, height: 10.2, category: "Fire", description: "DummyData")));
-// Add your button action here
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PokemonDetailPage(
+                          name: name,
+                          photoUrl: imageUrl,
+                          ability: '',
+                          weight: 10,
+                          height: 10,
+                          category: 'Fairy',
+                          description: '')));
             },
             style: ElevatedButton.styleFrom(
               shape: CircleBorder(), // This makes the button circular
@@ -445,6 +450,26 @@ class Name {
   final String imageUrl;
 }
 
+class PokemonDetail {
+  const PokemonDetail({
+    required this.name,
+    required this.imageUrl,
+    required this.ability,
+    required this.weight,
+    required this.height,
+    required this.category,
+    required this.description,
+  });
+
+  final String name;
+  final String imageUrl;
+  final String ability;
+  final double weight;
+  final double height;
+  final String category;
+  final String description;
+}
+
 class ImageColorExtractor extends StatefulWidget {
   final String imageUrl;
 
@@ -524,7 +549,7 @@ class PokemonSearch {
         final String url =
             'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png';
 
-        searchResults.add(Name(name: name,  imageUrl: url));
+        searchResults.add(Name(name: name, imageUrl: url));
       }
 
       return searchResults;

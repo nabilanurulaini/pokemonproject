@@ -1,7 +1,10 @@
+import 'dart:convert';
+ 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:palette_generator/palette_generator.dart';
+import 'package:http/http.dart' as http;
 import 'package:pokemon/main.dart';
  
 class PokemonDetailPage extends StatefulWidget {
@@ -31,11 +34,13 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
   PaletteGenerator? _paletteGenerator;
   double _appBarMaxHeight = 350.0;
   double _appBarMinHeight = 0.0;
+  late Map<String, dynamic> _pokemonData;
  
   @override
   void initState() {
     super.initState();
     _generatePalette();
+    _fetchPokemonData();
   }
  
   Future<void> _generatePalette() async {
@@ -46,26 +51,38 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
     });
   }
  
+  Future<void> _fetchPokemonData() async {
+    final response = await http
+        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/${widget.name}/'));
+    if (response.statusCode == 200) {
+      setState(() {
+        _pokemonData = json.decode(response.body);
+      });
+    } else {
+      throw Exception('Failed to load Pokemon data');
+    }
+  }
+ 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: Text("My App"),
+            title: Text("Pokemon Go"),
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                // Do something when the back button is pressed.
-                MainApp();
+                Navigator.pop(context);// Do something when the back button is pressed.
               },
             ),
             actions: [
               IconButton(
                 icon: Icon(Icons.favorite),
                 onPressed: () {
-                  // Do something when the love button is pressed.
-                },
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SearchBar()));
+// Add your button action here
+            },
               ),
             ],
           ),
@@ -112,7 +129,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                         offset: Offset(0.0, -70.0),
                         child: Center(
                           child: Text(
-                            '${widget.name}',
+                            '${_pokemonData["name"] ?? widget.name}',
                             style: TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
@@ -142,11 +159,13 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                   child: TabBarView(
                     children: [
                       AboutTab(
-                        ability: widget.ability,
-                        weight: widget.weight,
-                        height: widget.height,
-                        category: widget.category,
-                        description: widget.description,
+                        ability: _pokemonData["abilities"][0]["ability"]
+                            ["name"],
+                        weight: _pokemonData["weight"],
+                        height: _pokemonData["height"],
+                        category: _pokemonData["types"][0]["type"]["name"] ??
+                            widget.category,
+                        description: "EMANG GAADA!",
                       ),
                       SingleChildScrollView(child: StatusTab()),
                       SingleChildScrollView(child: EvolutionTab()),
@@ -247,7 +266,7 @@ class StatusTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatBar('HP', 80),
+          _buildStatBar('HP', 70),
           _buildStatBar('Attack', 60),
           _buildStatBar('Defense', 70),
           _buildStatBar('Sp. Atk', 85),
@@ -419,3 +438,4 @@ void main() {
     ),
   );
 }
+ 
