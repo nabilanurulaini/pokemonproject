@@ -1,19 +1,30 @@
+import 'dart:html';
+import 'dart:js';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:palette_generator/palette_generator.dart';
+import 'screens/splash_screen.dart';
+import 'screens/detail.dart';
 
 void main() {
   runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({Key? key});
+  const MainApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SearchBarApp();
+    return MaterialApp(
+      title: 'Pokemon Go',
+      theme: ThemeData(
+          // Your theme data
+          ),
+      home: SplashScreen(), // Show splash screen first
+    );
   }
 }
 
@@ -43,15 +54,15 @@ class _SearchBarAppState extends State<SearchBarApp> {
           ),
         ),
         body: SingleChildScrollView(
-          child: FutureBuilder<List<Location>>(
-            future: fetchPokemonLocations(),
+          child: FutureBuilder<List<Name>>(
+            future: fetchPokemonNames(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                List<Location> locations = snapshot.data!;
+                List<Name> Names = snapshot.data!;
                 return Column(
                   children: [
                     SearchAnchor(builder:
@@ -96,8 +107,8 @@ class _SearchBarAppState extends State<SearchBarApp> {
                       );
                     }, suggestionsBuilder:
                         (BuildContext context, SearchController controller) {
-                      return List<ListTile>.generate(locations.length, (index) {
-                        final String item = locations[index].name;
+                      return List<ListTile>.generate(Names.length, (index) {
+                        final String item = Names[index].name;
                         return ListTile(
                           title: Text(item),
                           onTap: () {
@@ -108,7 +119,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
                         );
                       });
                     }),
-                    ExampleParallax(locations: locations),
+                    ExampleParallax(Names: Names),
                   ],
                 );
               }
@@ -119,34 +130,33 @@ class _SearchBarAppState extends State<SearchBarApp> {
     );
   }
 
-  Future<List<Location>> fetchPokemonLocations() async {
+  Future<List<Name>> fetchPokemonNames() async {
     final response =
         await http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body)['results'];
-      List<Location> locations = [];
+      List<Name> Names = [];
 
       for (int i = 0; i < data.length; i++) {
         final String name = data[i]['name'];
         final String url =
             'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png';
 
-        // Ganti 'place' dengan 'name'
-        locations.add(Location(name: name, place: name, imageUrl: url));
+        Names.add(Name(name: name,  imageUrl: url));
       }
 
-      return locations;
+      return Names;
     } else {
-      throw Exception('Failed to load Pokemon locations');
+      throw Exception('Failed to load Pokemon Names');
     }
   }
 }
 
 class ExampleParallax extends StatelessWidget {
-  final List<Location> locations;
+  final List<Name> Names;
 
-  const ExampleParallax({Key? key, required this.locations}) : super(key: key);
+  const ExampleParallax({Key? key, required this.Names}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -155,37 +165,14 @@ class ExampleParallax extends StatelessWidget {
         children: [
           Row(
             children: [
-              const SizedBox(width: 20, height: 34),
-              Text(
-                'All',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6!
-                    .copyWith(fontSize: 15),
-              ),
-              const SizedBox(width: 24),
-              Text(
-                'Woman',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6!
-                    .copyWith(fontSize: 15),
-              ),
-              const SizedBox(width: 24),
-              Text(
-                'Men',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6!
-                    .copyWith(fontSize: 15),
-              ),
+              const SizedBox(width: 20, height: 24),
+              
             ],
           ),
-          for (final location in locations)
-            LocationListItem(
-              imageUrl: location.imageUrl,
-              name: location.name,
-              country: location.place,
+          for (final Name in Names)
+            NameListItem(
+              imageUrl: Name.imageUrl,
+              name: Name.name,
             ),
         ],
       ),
@@ -193,18 +180,16 @@ class ExampleParallax extends StatelessWidget {
   }
 }
 
-class LocationListItem extends StatelessWidget {
-  LocationListItem({
+class NameListItem extends StatelessWidget {
+  NameListItem({
     Key? key,
     required this.imageUrl,
-    required this.name,
-    required this.country,
+    required this.name
   }) : super(key: key);
 
   final String imageUrl;
   final String name;
-  final String country;
-  final GlobalKey _backgroundImageKey = GlobalKey();
+   final GlobalKey _backgroundImageKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -221,11 +206,13 @@ class LocationListItem extends StatelessWidget {
                 background: Image.network(
                   imageUrl,
                   key: _backgroundImageKey,
+                  width: 326,
+                  height: 186,
                   fit: BoxFit.cover,
                 ),
               ),
               _buildGradient(),
-              _buildTitleAndSubtitle(),
+              _buildTitleAndSubtitle(context),
             ],
           ),
         ),
@@ -248,52 +235,50 @@ class LocationListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleAndSubtitle() {
-  return Positioned(
-    left: 20,
-    bottom: 20,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+  Widget _buildTitleAndSubtitle(BuildContext context) {
+    return Positioned(
+      left: 20,
+      bottom: 20,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            ],
+          ),
+          SizedBox(width: 6), // Adjust spacing between text and button
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => PokemonDetailPage(photoUrl: imageUrl, name: name, ability: "Tackle", weight: 10.2, height: 10.2, category: "Fire", description: "DummyData")));
+// Add your button action here
+            },
+            style: ElevatedButton.styleFrom(
+              shape: CircleBorder(), // This makes the button circular
+              padding: EdgeInsets.all(2), // Adjust the padding as needed
             ),
-            
-          ],
-        ),
-        SizedBox(width: 6), // Adjust spacing between text and button
-        ElevatedButton(
-  onPressed: () {
-    // Add your button action here
-  },
-  style: ElevatedButton.styleFrom(
-    shape: CircleBorder(), // This makes the button circular
-    padding: EdgeInsets.all(5), // Adjust the padding as needed
-  ),
-  child: Container(
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      // color: Colors.blue, // Choose the color you want
-    ),
-    padding: EdgeInsets.all(5), // Adjust the padding as needed
-    child: Icon(Icons.arrow_forward, size: 14, color: Colors.black),
-  ),
-),
-
-      ],
-    ),
-  );
-}
-
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                // color: Colors.blue, // Choose the color you want
+              ),
+              padding: EdgeInsets.all(2), // Adjust the padding as needed
+              child: Icon(Icons.arrow_forward, size: 24, color: Colors.black),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class ParallaxFlowDelegate extends FlowDelegate {
@@ -450,15 +435,13 @@ class RenderParallax extends RenderBox
   }
 }
 
-class Location {
-  const Location({
+class Name {
+  const Name({
     required this.name,
-    required this.place,
     required this.imageUrl,
   });
 
   final String name;
-  final String place;
   final String imageUrl;
 }
 
@@ -515,32 +498,33 @@ class ColorExtractor extends StatelessWidget {
         child: Text(
           '',
           style: TextStyle(
-            color: ThemeData.estimateBrightnessForColor(palette) ==
-                    Brightness.dark
-                ? Colors.white
-                : Colors.black,
+            color:
+                ThemeData.estimateBrightnessForColor(palette) == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
           ),
         ),
       ),
     );
   }
 }
+
 class PokemonSearch {
   final String apiUrl = 'https://pokeapi.co/api/v2/pokemon';
 
-  Future<List<Location>> searchPokemon(String query) async {
+  Future<List<Name>> searchPokemon(String query) async {
     final response = await http.get(Uri.parse('$apiUrl?name=$query'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body)['results'];
-      List<Location> searchResults = [];
+      List<Name> searchResults = [];
 
       for (int i = 0; i < data.length; i++) {
         final String name = data[i]['name'];
         final String url =
             'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png';
 
-        searchResults.add(Location(name: name, place: name, imageUrl: url));
+        searchResults.add(Name(name: name,  imageUrl: url));
       }
 
       return searchResults;
