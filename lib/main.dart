@@ -27,14 +27,14 @@ class MainApp extends StatelessWidget {
     );
   }
 }
-
+// search bar code menggunakan stateful widget karena ada perubahan state
 class SearchBarApp extends StatefulWidget {
   const SearchBarApp({Key? key});
 
   @override
   State<SearchBarApp> createState() => _SearchBarAppState();
 }
-
+// ini state nya 
 class _SearchBarAppState extends State<SearchBarApp> {
   bool isDark = false;
 
@@ -55,7 +55,9 @@ class _SearchBarAppState extends State<SearchBarApp> {
         ),
         body: SingleChildScrollView(
           child: FutureBuilder<List<Name>>(
+            // future digunakan untuk menunggu data yang akan diambil dari api
             future: fetchPokemonNames(),
+            // snapshot untuk menampilkan data yang sudah diambil dari api
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
@@ -119,6 +121,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
                         );
                       });
                     }),
+                    // ini untuk menampilkan gambar yang digunakan
                     ExampleParallax(Names: Names),
                   ],
                 );
@@ -129,7 +132,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
       ),
     );
   }
-
+  // future digunakan untuk mengambil list yang isinya nama dengan menggunakan async dan await karena menunggu data yang diambil dari api
   Future<List<Name>> fetchPokemonNames() async {
     final response =
         await http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon'));
@@ -152,7 +155,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
     }
   }
 }
-
+// menggunakan stateless widget karena tidak ada perubahan state
 class ExampleParallax extends StatelessWidget {
   final List<Name> Names;
 
@@ -204,6 +207,7 @@ class NameListItem extends StatelessWidget {
                   key: _backgroundImageKey,
                   width: 326,
                   height: 186,
+
                   fit: BoxFit.cover,
                 ),
               ),
@@ -285,7 +289,7 @@ class NameListItem extends StatelessWidget {
     );
   }
 }
-
+// parallax flow delegate untuk mengatur posisi dari gambar
 class ParallaxFlowDelegate extends FlowDelegate {
   ParallaxFlowDelegate({
     required this.scrollable,
@@ -303,7 +307,7 @@ class ParallaxFlowDelegate extends FlowDelegate {
       width: constraints.maxWidth,
     );
   }
-
+// untuk mengatur posisi dari gambar
   @override
   void paintChildren(FlowPaintingContext context) {
     final scrollableBox = scrollable.context.findRenderObject() as RenderBox;
@@ -479,7 +483,7 @@ class ImageColorExtractor extends StatefulWidget {
   @override
   _ImageColorExtractorState createState() => _ImageColorExtractorState();
 }
-
+// ini untuk mengambil warna dari gambar yang digunakan
 class _ImageColorExtractorState extends State<ImageColorExtractor> {
   PaletteGenerator? _paletteGenerator;
 
@@ -508,7 +512,7 @@ class _ImageColorExtractorState extends State<ImageColorExtractor> {
         : ColorExtractor(palette: _paletteGenerator!.dominantColor!.color);
   }
 }
-
+// ini untuk extract warna dari gambar
 class ColorExtractor extends StatelessWidget {
   final Color palette;
 

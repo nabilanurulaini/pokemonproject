@@ -111,8 +111,8 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                     elevation: 0,
                     child: CachedNetworkImage(
                       imageUrl: widget.photoUrl,
-                      height: 175,
-                      maxWidthDiskCache: 200,
+                      height: 186,
+                      maxWidthDiskCache: 326,
                       fit: BoxFit.cover,
                       placeholder: (context, url) =>
                           CircularProgressIndicator(),
