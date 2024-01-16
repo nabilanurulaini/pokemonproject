@@ -76,15 +76,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                 Navigator.pop(context);// Do something when the back button is pressed.
               },
             ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.favorite),
-                onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SearchBar()));
-// Add your button action here
-            },
-              ),
-            ],
+            
           ),
           body: NestedScrollView(
             headerSliverBuilder:
@@ -99,8 +91,8 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                   height: 350,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(190),
-                      bottomRight: Radius.circular(190),
+                      bottomLeft: Radius.circular(470),
+                      bottomRight: Radius.circular(470),
                     ),
                     color: _paletteGenerator?.dominantColor?.color ??
                         Colors.yellow,
@@ -111,7 +103,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                     elevation: 0,
                     child: CachedNetworkImage(
                       imageUrl: widget.photoUrl,
-                      height: 186,
+                      height: 378,
                       maxWidthDiskCache: 326,
                       fit: BoxFit.cover,
                       placeholder: (context, url) =>
@@ -165,9 +157,16 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                         height: _pokemonData["height"],
                         category: _pokemonData["types"][0]["type"]["name"] ??
                             widget.category,
-                        description: "EMANG GAADA!",
+                        description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ",
                       ),
-                      SingleChildScrollView(child: StatusTab()),
+                      SingleChildScrollView(child: StatusTab(
+                        hp: _pokemonData["stats"][0]["base_stat"],
+                        attack: _pokemonData["stats"][1]["base_stat"],
+                        defense: _pokemonData["stats"][2]["base_stat"],
+                        spattack: _pokemonData["stats"][3]["base_stat"],
+                        spdefense: _pokemonData["stats"][4]["base_stat"],
+                        speed: _pokemonData["stats"][5]["base_stat"],
+                      )),
                       SingleChildScrollView(child: EvolutionTab()),
                     ],
                   ),
@@ -259,6 +258,22 @@ class AboutTab extends StatelessWidget {
 }
  
 class StatusTab extends StatelessWidget {
+  final int hp;
+  final int attack;
+  final int defense;
+  final int spattack;
+  final int spdefense;
+  final int speed;
+ 
+  StatusTab({
+    required this.hp,
+    required this.attack,
+    required this.defense,
+    required this.spattack,
+    required this.spdefense,
+    required this.speed,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -266,12 +281,12 @@ class StatusTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatBar('HP', 70),
-          _buildStatBar('Attack', 60),
-          _buildStatBar('Defense', 70),
-          _buildStatBar('Sp. Atk', 85),
-          _buildStatBar('Sp. Def', 75),
-          _buildStatBar('Speed', 90),
+          _buildStatBar('HP', hp),
+          _buildStatBar('Attack', attack),
+          _buildStatBar('Defense', defense),
+          _buildStatBar('Sp. Atk', spattack),
+          _buildStatBar('Sp. Def', spdefense),
+          _buildStatBar('Speed', speed),
           SizedBox(height: 16),
           Text(
             'Description:',

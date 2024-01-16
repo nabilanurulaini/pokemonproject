@@ -27,6 +27,7 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+
 // search bar code menggunakan stateful widget karena ada perubahan state
 class SearchBarApp extends StatefulWidget {
   const SearchBarApp({Key? key});
@@ -34,15 +35,21 @@ class SearchBarApp extends StatefulWidget {
   @override
   State<SearchBarApp> createState() => _SearchBarAppState();
 }
-// ini state nya 
+
+// ini state nya
 class _SearchBarAppState extends State<SearchBarApp> {
   bool isDark = false;
+   List<Name> searchResults = [];
+  List<Name> allPokemonNames = [];
+
+  final PokemonSearch pokemonSearch =
+      PokemonSearch(); // Instantiate PokemonSearch
 
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = ThemeData(
       useMaterial3: true,
-      brightness: isDark ? Brightness.dark : Brightness.light,
+      brightness: Brightness.light,
     );
     return MaterialApp(
       theme: themeData,
@@ -67,60 +74,51 @@ class _SearchBarAppState extends State<SearchBarApp> {
                 List<Name> Names = snapshot.data!;
                 return Column(
                   children: [
-                    SearchAnchor(builder:
-                        (BuildContext context, SearchController controller) {
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20.0, right: 20, bottom: 20, top: 30),
-                        child: SearchBar(
-                          backgroundColor: isDark == false
-                              ? MaterialStatePropertyAll<Color>(
-                                  Color.fromARGB(255, 255, 255, 255))
-                              : MaterialStatePropertyAll<Color>(
-                                  Color.fromARGB(0, 0, 0, 0)),
-                          controller: controller,
-                          padding: const MaterialStatePropertyAll<EdgeInsets>(
-                              EdgeInsets.symmetric(horizontal: 16.0)),
-                          onTap: () {
-                            controller.openView();
-                          },
-                          onChanged: (_) {
-                            controller.openView();
-                          },
-                          hintText: "Search",
-                          leading: const Icon(Icons.search),
-                          trailing: <Widget>[
-                            Tooltip(
-                              message: 'Change brightness mode',
-                              child: IconButton(
-                                isSelected: isDark,
-                                onPressed: () {
-                                  setState(() {
-                                    isDark = !isDark;
-                                  });
-                                },
-                                icon: const Icon(Icons.wb_sunny_outlined),
-                                selectedIcon:
-                                    const Icon(Icons.brightness_2_outlined),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    }, suggestionsBuilder:
-                        (BuildContext context, SearchController controller) {
-                      return List<ListTile>.generate(Names.length, (index) {
-                        final String item = Names[index].name;
-                        return ListTile(
-                          title: Text(item),
-                          onTap: () {
-                            setState(() {
-                              controller.closeView(item);
-                            });
-                          },
+                    SearchAnchor(
+                      builder:
+                          (BuildContext context, SearchController controller) {
+                        var text;
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20.0, right: 20, bottom: 2, top: 32),
+                          child: SearchBar(
+                            backgroundColor: isDark == false
+                                ? MaterialStatePropertyAll<Color>(
+                                    Color.fromARGB(217, 217, 217, 217))
+                                : MaterialStatePropertyAll<Color>(
+                                    Color.fromARGB(0, 0, 0, 0)),
+                            controller: controller,
+                            padding: const MaterialStatePropertyAll<EdgeInsets>(
+                                EdgeInsets.symmetric(horizontal: 16.0)),
+                            onChanged: (String query) {
+                              var query = controller.value.text;
+                              _searchPokemon(query);
+                              print("Query $query");
+                            },
+                            hintText: "Search",
+                            leading: Icon(
+                              Icons.search,
+                              color: Color.fromARGB(126, 126, 126, 126),
+                            ),
+                            elevation: MaterialStatePropertyAll<double>(2.0),
+                          ),
                         );
-                      });
-                    }),
+                      },
+                      suggestionsBuilder:
+                          (BuildContext context, SearchController controller) {
+            return List<ListTile>.generate(searchResults.length, (index) {
+              final String item = searchResults[index].name;
+              return ListTile(
+                title: Text(item),
+                onTap: () {
+                  setState(() {
+                    controller.closeView(item);
+                              });
+                            },
+                          );
+                        });
+                      },
+                    ),
                     // ini untuk menampilkan gambar yang digunakan
                     ExampleParallax(Names: Names),
                   ],
@@ -132,6 +130,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
       ),
     );
   }
+
   // future digunakan untuk mengambil list yang isinya nama dengan menggunakan async dan await karena menunggu data yang diambil dari api
   Future<List<Name>> fetchPokemonNames() async {
     final response =
@@ -154,7 +153,24 @@ class _SearchBarAppState extends State<SearchBarApp> {
       throw Exception('Failed to load Pokemon Names');
     }
   }
+
+  // Call PokemonSearch with the query
+  void _searchPokemon(String query) async {
+    try {
+      List<Name> searchResults = await pokemonSearch.searchPokemon(query);
+      List<Name> results = await pokemonSearch.searchPokemon(query);
+      setState(() {
+
+        searchResults = results;
+      });
+      // Do something with the searchResults, e.g., update the UI
+      print('Search Results: $searchResults');
+    } catch (e) {
+      print('Error searching Pokemon: $e');
+    }
+  }
 }
+
 // menggunakan stateless widget karena tidak ada perubahan state
 class ExampleParallax extends StatelessWidget {
   final List<Name> Names;
@@ -201,14 +217,16 @@ class NameListItem extends StatelessWidget {
           child: Stack(
             children: [
               ImageColorExtractor(imageUrl: imageUrl),
-              Parallax(
-                background: Image.network(
-                  imageUrl,
-                  key: _backgroundImageKey,
-                  width: 326,
-                  height: 186,
-
-                  fit: BoxFit.cover,
+              Padding(
+                padding: const EdgeInsets.only(left: 150.0),
+                child: Parallax(
+                  background: Image.network(
+                    imageUrl,
+                    key: _backgroundImageKey,
+                    width: 326,
+                    height: 186,
+                    fit: BoxFit.fitHeight,
+                  ),
                 ),
               ),
               _buildGradient(),
@@ -225,10 +243,10 @@ class NameListItem extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: const [0.6, 0.95],
+            colors: [Colors.transparent, Colors.black.withOpacity(0.35)],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            stops: const [0.6, 1.95],
           ),
         ),
       ),
@@ -289,6 +307,7 @@ class NameListItem extends StatelessWidget {
     );
   }
 }
+
 // parallax flow delegate untuk mengatur posisi dari gambar
 class ParallaxFlowDelegate extends FlowDelegate {
   ParallaxFlowDelegate({
@@ -307,6 +326,7 @@ class ParallaxFlowDelegate extends FlowDelegate {
       width: constraints.maxWidth,
     );
   }
+
 // untuk mengatur posisi dari gambar
   @override
   void paintChildren(FlowPaintingContext context) {
@@ -483,6 +503,7 @@ class ImageColorExtractor extends StatefulWidget {
   @override
   _ImageColorExtractorState createState() => _ImageColorExtractorState();
 }
+
 // ini untuk mengambil warna dari gambar yang digunakan
 class _ImageColorExtractorState extends State<ImageColorExtractor> {
   PaletteGenerator? _paletteGenerator;
@@ -509,9 +530,10 @@ class _ImageColorExtractorState extends State<ImageColorExtractor> {
   Widget build(BuildContext context) {
     return _paletteGenerator == null
         ? CircularProgressIndicator()
-        : ColorExtractor(palette: _paletteGenerator!.dominantColor!.color);
+        : ColorExtractor(palette: _paletteGenerator!.lightVibrantColor!.color!);
   }
 }
+
 // ini untuk extract warna dari gambar
 class ColorExtractor extends StatelessWidget {
   final Color palette;
@@ -539,7 +561,7 @@ class ColorExtractor extends StatelessWidget {
 }
 
 class PokemonSearch {
-  final String apiUrl = 'https://pokeapi.co/api/v2/pokemon';
+  final String apiUrl = 'https://pokeapi.co/api/v2/pokemon/';
 
   Future<List<Name>> searchPokemon(String query) async {
     final response = await http.get(Uri.parse('$apiUrl?name=$query'));
