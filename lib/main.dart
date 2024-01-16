@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:js';
 
@@ -23,7 +24,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
           // Your theme data
           ),
-      home: SplashScreen(), // Show splash screen first
+      home: const SplashScreen(), // Show splash screen first
     );
   }
 }
@@ -39,11 +40,17 @@ class SearchBarApp extends StatefulWidget {
 // ini state nya
 class _SearchBarAppState extends State<SearchBarApp> {
   bool isDark = false;
-   List<Name> searchResults = [];
   List<Name> allPokemonNames = [];
 
   final PokemonSearch pokemonSearch =
       PokemonSearch(); // Instantiate PokemonSearch
+  Timer? debouncerTime;
+
+  @override
+  void dispose() {
+    debouncerTime?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +74,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
             // snapshot untuk menampilkan data yang sudah diambil dari api
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
@@ -77,42 +84,57 @@ class _SearchBarAppState extends State<SearchBarApp> {
                     SearchAnchor(
                       builder:
                           (BuildContext context, SearchController controller) {
-                        var text;
+                        // var text;
                         return Padding(
                           padding: const EdgeInsets.only(
                               left: 20.0, right: 20, bottom: 2, top: 32),
                           child: SearchBar(
                             backgroundColor: isDark == false
-                                ? MaterialStatePropertyAll<Color>(
+                                ? const MaterialStatePropertyAll<Color>(
                                     Color.fromARGB(217, 217, 217, 217))
-                                : MaterialStatePropertyAll<Color>(
+                                : const MaterialStatePropertyAll<Color>(
                                     Color.fromARGB(0, 0, 0, 0)),
                             controller: controller,
                             padding: const MaterialStatePropertyAll<EdgeInsets>(
                                 EdgeInsets.symmetric(horizontal: 16.0)),
                             onChanged: (String query) {
+                              // Handle the onTap event for SearchBar
+                              // You can call the PokemonSearch here
                               var query = controller.value.text;
-                              _searchPokemon(query);
-                              print("Query $query");
+
+                              if (debouncerTime?.isActive ?? false)
+                                debouncerTime?.cancel();
+
+                              debouncerTime =
+                                  Timer(const Duration(seconds: 1), () {
+                                _searchPokemon(query);
+                                print("Query " + query);
+                              });
                             },
                             hintText: "Search",
-                            leading: Icon(
+                            hintStyle:
+                                const MaterialStatePropertyAll<TextStyle>(
+                                    TextStyle(
+                                        color: Color.fromARGB(
+                                            126, 126, 126, 126))),
+                            leading: const Icon(
                               Icons.search,
                               color: Color.fromARGB(126, 126, 126, 126),
                             ),
-                            elevation: MaterialStatePropertyAll<double>(2.0),
+                            elevation:
+                                const MaterialStatePropertyAll<double>(2.0),
                           ),
                         );
                       },
                       suggestionsBuilder:
                           (BuildContext context, SearchController controller) {
-            return List<ListTile>.generate(searchResults.length, (index) {
-              final String item = searchResults[index].name;
-              return ListTile(
-                title: Text(item),
-                onTap: () {
-                  setState(() {
-                    controller.closeView(item);
+                        return List<ListTile>.generate(Names.length, (index) {
+                          final String item = Names[index].name;
+                          return ListTile(
+                            title: Text(item),
+                            onTap: () {
+                              setState(() {
+                                controller.closeView(item);
                               });
                             },
                           );
@@ -158,11 +180,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
   void _searchPokemon(String query) async {
     try {
       List<Name> searchResults = await pokemonSearch.searchPokemon(query);
-      List<Name> results = await pokemonSearch.searchPokemon(query);
-      setState(() {
 
-        searchResults = results;
-      });
       // Do something with the searchResults, e.g., update the UI
       print('Search Results: $searchResults');
     } catch (e) {
@@ -182,9 +200,9 @@ class ExampleParallax extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Row(
+          const Row(
             children: [
-              const SizedBox(width: 20, height: 24),
+              SizedBox(width: 20, height: 24),
             ],
           ),
           for (final Name in Names)
@@ -274,7 +292,7 @@ class NameListItem extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(width: 6), // Adjust spacing between text and button
+          const SizedBox(width: 6), // Adjust spacing between text and button
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -290,16 +308,17 @@ class NameListItem extends StatelessWidget {
                           description: '')));
             },
             style: ElevatedButton.styleFrom(
-              shape: CircleBorder(), // This makes the button circular
-              padding: EdgeInsets.all(2), // Adjust the padding as needed
+              shape: const CircleBorder(), // This makes the button circular
+              padding: const EdgeInsets.all(2), // Adjust the padding as needed
             ),
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 // color: Colors.blue, // Choose the color you want
               ),
-              padding: EdgeInsets.all(2), // Adjust the padding as needed
-              child: Icon(Icons.arrow_forward, size: 24, color: Colors.black),
+              padding: const EdgeInsets.all(2), // Adjust the padding as needed
+              child: const Icon(Icons.arrow_forward,
+                  size: 24, color: Colors.black),
             ),
           ),
         ],
@@ -529,7 +548,7 @@ class _ImageColorExtractorState extends State<ImageColorExtractor> {
   @override
   Widget build(BuildContext context) {
     return _paletteGenerator == null
-        ? CircularProgressIndicator()
+        ? const CircularProgressIndicator()
         : ColorExtractor(palette: _paletteGenerator!.lightVibrantColor!.color!);
   }
 }
