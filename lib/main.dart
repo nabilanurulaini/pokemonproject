@@ -1,17 +1,10 @@
 import 'dart:async';
-import 'dart:html';
-import 'dart:js';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:palette_generator/palette_generator.dart';
 import 'package:pokemon/screens/search_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/image_parallax.dart';
-import 'screens/color_extractor.dart';
-
 void main() {
   runApp(const MainApp());
 }
@@ -23,6 +16,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Pokemon Go',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
           // Your theme data
           ),

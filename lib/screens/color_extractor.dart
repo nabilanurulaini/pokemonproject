@@ -1,12 +1,6 @@
-import 'dart:convert';
- 
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:http/http.dart' as http;
-import 'package:pokemon/main.dart';
- 
+
 class ImageColorExtractor extends StatefulWidget {
   final String imageUrl;
 

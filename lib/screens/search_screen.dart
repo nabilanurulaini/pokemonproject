@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pokemon/screens/color_extractor.dart';
 
 class SearchPages extends StatefulWidget {
   const SearchPages({super.key});
@@ -20,35 +21,98 @@ class _SearchPagesState extends State<SearchPages> {
     _searchController.dispose();
   }
 
-
-  String urlPokemon = "https://pokeapi.co/api/v2/pokemon/pikachu";
-  String namaPokemon = "Nama Pokemon masih kosong";
+  String urlPokemon = "";
+  String namaPokemon = " ";
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         body: Column(
           children: [
-            Form(
-              child: TextFormField(
-                controller: _searchController,
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                
+              ],
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  
+                  child: const Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 24, color: Colors.black),
+                ),
+                SizedBox(
+                  height: 36,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20.0, right: 36, bottom: 2, top: 20),
+                    child: SearchBar(
+                      backgroundColor: const MaterialStatePropertyAll<Color>(
+                        Color.fromARGB(217, 217, 217, 217),
+                      ),
+                      controller: _searchController,
+                      padding: const MaterialStatePropertyAll<EdgeInsets>(
+                        EdgeInsets.symmetric(horizontal: 16.0),
+                      ),
+                      hintText: "Search",
+                      hintStyle: const MaterialStatePropertyAll<TextStyle>(
+                        TextStyle(color: Color.fromARGB(126, 126, 126, 126)),
+                      ),
+                      leading: const Icon(
+                        Icons.search,
+                        color: Color.fromARGB(126, 126, 126, 126),
+                      ),
+                      onSubmitted: (String value) async {
+                        var test = await _searchPokemon(value);
+
+                        print(test?.name ?? "Kosong abilitynya bozku");
+                        print(value);
+
+                        setState(() {
+                          namaPokemon = test!.name;
+                          urlPokemon = test.sprites.frontDefault;
+                        });
+                      },
+                      elevation: const MaterialStatePropertyAll<double>(2.0),
+                    ),
+                  ),
+                ),
+              ],
+            ),SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                        left: 20.0, right: 36, bottom: 2, top: 20),
+              child: Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(namaPokemon),
+                      
+                    ),
+                    urlPokemon == ""
+                        ? FlutterLogo(
+                            size: 200,
+                          )
+                        : Padding(
+                          padding: const EdgeInsets.only(left:28.0),
+                          child: Image.network(urlPokemon),
+                        ),
+                        SizedBox(height: 20,)
+                  ],
+                ),
               ),
             ),
-            ElevatedButton(
-                onPressed: () async {
-                  var test = await _searchPokemon(_searchController.text);
-
-                  print(test?.name ?? "Kosong abilitynya bozku");
-                  print(_searchController.text);
-
-                  setState(() {
-                    namaPokemon = test!.name;
-                    urlPokemon = test.sprites.frontDefault;
-                  });
-                },
-                child: const Text("Search")),
-            Text(namaPokemon),
-            Image.network(urlPokemon)
+            // urlPokemon == ""
+            //     ? FlutterLogo(
+            //         size: 300,
+            //       )
+            //     : Image.network(urlPokemon)
           ],
         ),
       ),

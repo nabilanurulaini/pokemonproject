@@ -1,11 +1,5 @@
-import 'dart:convert';
- 
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:palette_generator/palette_generator.dart';
-import 'package:http/http.dart' as http;
 import 'package:pokemon/main.dart';
 import 'package:pokemon/screens/detail.dart';
 import 'package:pokemon/screens/color_extractor.dart';
@@ -121,12 +115,7 @@ class NameListItem extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => PokemonDetailPage(
                           name: name,
-                          photoUrl: imageUrl,
-                          ability: '',
-                          weight: 10,
-                          height: 10,
-                          category: 'Fairy',
-                          description: '')));
+                          )));
             },
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(), // This makes the button circular
@@ -138,7 +127,7 @@ class NameListItem extends StatelessWidget {
                 // color: Colors.blue, // Choose the color you want
               ),
               padding: const EdgeInsets.all(2), // Adjust the padding as needed
-              child: const Icon(Icons.arrow_forward,
+              child: const Icon(Icons.arrow_forward_ios_rounded,
                   size: 24, color: Colors.black),
             ),
           ),
