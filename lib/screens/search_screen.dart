@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pokemon/screens/color_extractor.dart';
-
 class SearchPages extends StatefulWidget {
   const SearchPages({super.key});
 
@@ -16,40 +15,52 @@ class _SearchPagesState extends State<SearchPages> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _searchController.dispose();
   }
 
   String urlPokemon = "";
   String namaPokemon = " ";
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading : false,
+          centerTitle: true,
+          title: Center(
+            child: Image.asset('assets/img/Logo.png', height: 160, width: 160),
+          ),
+        ),
         body: Column(
           children: [
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                
-              ],
-            ),
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  
-                  child: const Icon(Icons.arrow_back_ios_new_rounded,
-                      size: 24, color: Colors.black),
+                  padding: const EdgeInsets.only(left: 20.0, top: 24),
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(217, 217, 217, 217),
+                      borderRadius: BorderRadius.circular(26.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 18.0),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 36,
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20.0, right: 36, bottom: 2, top: 20),
+                    padding: const EdgeInsets.only(left: 20.0, right: 36, bottom: 2, top: 20),
                     child: SearchBar(
                       backgroundColor: const MaterialStatePropertyAll<Color>(
                         Color.fromARGB(217, 217, 217, 217),
@@ -82,45 +93,63 @@ class _SearchPagesState extends State<SearchPages> {
                   ),
                 ),
               ],
-            ),SizedBox(
+            ),
+            SizedBox(
               height: 20,
             ),
             Padding(
-              padding: const EdgeInsets.only(
-                        left: 20.0, right: 36, bottom: 2, top: 20),
+              padding: const EdgeInsets.only(left: 20.0, right: 36, bottom: 2, top: 20),
               child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 8,
                 child: Column(
                   children: [
-                    ListTile(
-                      title: Text(namaPokemon),
-                      
+                    ClipRRect(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      child: Stack(
+                        alignment: Alignment.bottomLeft,
+                        children: [
+                          urlPokemon == ""
+                              ? FlutterLogo(
+                                  size: 120,
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.only(left: 80.0, bottom: 8, right: 20),
+                                  child: Image.network(
+                                    urlPokemon,
+                                    height: 220,
+                                    width: 220,
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                ),
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(),
+                            child: Text(
+                              namaPokemon,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    urlPokemon == ""
-                        ? FlutterLogo(
-                            size: 200,
-                          )
-                        : Padding(
-                          padding: const EdgeInsets.only(left:28.0),
-                          child: Image.network(urlPokemon),
-                        ),
-                        SizedBox(height: 20,)
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
             ),
-            // urlPokemon == ""
-            //     ? FlutterLogo(
-            //         size: 300,
-            //       )
-            //     : Image.network(urlPokemon)
           ],
         ),
       ),
     );
   }
 }
-
-// future digunakan untuk mengambil list yang isinya nama dengan menggunakan async dan await karena menunggu data yang diambil dari api
 class SearchPokemonDetail {
   Future<PokemonDetail?> searchPokemonDetail(String pokemonName) async {
     try {
