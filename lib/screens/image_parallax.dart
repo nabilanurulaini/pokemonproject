@@ -4,7 +4,6 @@ import 'package:pokemon/main.dart';
 import 'package:pokemon/screens/detail.dart';
 import 'package:pokemon/screens/color_extractor.dart';
 
- 
 class ExampleParallax extends StatelessWidget {
   final List<Name> Names;
 
@@ -110,12 +109,13 @@ class NameListItem extends StatelessWidget {
           const SizedBox(width: 6), // Adjust spacing between text and button
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
+              
+                          Future.delayed(Duration(seconds: 5), () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => PokemonDetailPage(
-                          name: name,
-                          )));
+                            name: name,
+                          ))));
             },
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(), // This makes the button circular

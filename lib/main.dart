@@ -87,7 +87,7 @@ class _SearchBarAppState extends State<SearchBarApp> {
                           child: SearchBar(
                             backgroundColor: isDark == false
                                 ? const MaterialStatePropertyAll<Color>(
-                                    Color.fromARGB(217, 217, 217, 217))
+                                    Color.fromARGB(240, 240, 240, 240))
                                 : const MaterialStatePropertyAll<Color>(
                                     Color.fromARGB(0, 0, 0, 0)),
                             controller: controller,

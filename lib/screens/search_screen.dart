@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pokemon/screens/color_extractor.dart';
+import 'package:pokemon/main.dart';
+
 class SearchPages extends StatefulWidget {
   const SearchPages({super.key});
 
@@ -27,7 +28,7 @@ class _SearchPagesState extends State<SearchPages> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading : false,
+          automaticallyImplyLeading: false,
           centerTitle: true,
           title: Center(
             child: Image.asset('assets/img/Logo.png', height: 160, width: 160),
@@ -38,32 +39,52 @@ class _SearchPagesState extends State<SearchPages> {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 20.0, top: 24),
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(217, 217, 217, 217),
-                      borderRadius: BorderRadius.circular(26.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 18.0),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        size: 24,
-                        color: Colors.black,
+                  padding: const EdgeInsets.only(left: 20.0, top: 12),
+                  child: Material(
+                    elevation: 2.0,
+                    shape: CircleBorder(
+                        // borderRadius: BorderRadius.circular(70.0),
+                        ), // Set the elevation value as needed
+                    color: Color.fromARGB(174, 247, 245, 245),
+                    child: MaterialButton(
+                      elevation: 20.0, // Set the elevation value as needed
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return SearchBarApp();
+                        }));
+                      },
+
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            left: 15.0, right: 20, bottom: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(39.0),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.only(
+                            top: 20.0,
+                          ),
+                          child: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            size: 24,
+                            color: Color.fromARGB(126, 126, 126, 126),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 36,
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0, right: 36, bottom: 2, top: 20),
+                    padding: const EdgeInsets.only(
+                        left: 20.0, right: 36, bottom: 2, top: 20),
                     child: SearchBar(
                       backgroundColor: const MaterialStatePropertyAll<Color>(
-                        Color.fromARGB(217, 217, 217, 217),
+                        Color.fromARGB(240, 240, 240, 240),
                       ),
                       controller: _searchController,
                       padding: const MaterialStatePropertyAll<EdgeInsets>(
@@ -94,11 +115,11 @@ class _SearchPagesState extends State<SearchPages> {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 36, bottom: 2, top: 20),
+              padding: const EdgeInsets.only(bottom: 2, top: 20),
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -107,16 +128,18 @@ class _SearchPagesState extends State<SearchPages> {
                 child: Column(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Stack(
                         alignment: Alignment.bottomLeft,
                         children: [
                           urlPokemon == ""
-                              ? FlutterLogo(
-                                  size: 120,
+                              ? const FlutterLogo(
+                                  size: 320,
                                 )
                               : Padding(
-                                  padding: const EdgeInsets.only(left: 80.0, bottom: 8, right: 20),
+                                  padding: const EdgeInsets.only(
+                                      left: 80.0, bottom: 8, right: 20),
                                   child: Image.network(
                                     urlPokemon,
                                     height: 220,
@@ -125,12 +148,12 @@ class _SearchPagesState extends State<SearchPages> {
                                   ),
                                 ),
                           Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(),
+                            padding: const EdgeInsets.all(16),
+                            decoration: const BoxDecoration(),
                             child: Text(
                               namaPokemon,
-                              style: TextStyle(
-                                color: Colors.white,
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -139,7 +162,7 @@ class _SearchPagesState extends State<SearchPages> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -150,6 +173,7 @@ class _SearchPagesState extends State<SearchPages> {
     );
   }
 }
+
 class SearchPokemonDetail {
   Future<PokemonDetail?> searchPokemonDetail(String pokemonName) async {
     try {

@@ -37,6 +37,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
   Map<String, dynamic> _dataEvo1 = Map<String, dynamic>();
   Map<String, dynamic> _dataEvo2 = Map<String, dynamic>();
   Map<String, dynamic> _dataEvo3 = Map<String, dynamic>();
+  Map<String, dynamic> _dataWeakness = Map<String, dynamic>();
   Map<String, dynamic> _dataDescription = Map<String, dynamic>();
   PaletteGenerator? _paletteGenerator;
   Map<String, dynamic> _pokemonData = Map<String, dynamic>();
@@ -49,6 +50,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
     _fetchEvolution();
     _fetchPhotoEvolution();
     _fetchDescription();
+    _fetchWeakness();
   }
  
   Future<void> _generatePalette() async {
@@ -127,6 +129,21 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
       // print("OK ${inspect(json.decode(response1.body))}");
       setState(() {
         _dataDescription = json.decode(responsedescription.body);
+      });
+    } else {
+      throw Exception('Failed to load Pokemon Description');
+    }
+  }
+
+  Future<void> _fetchWeakness() async {
+    await _fetchPokemonData();
+    double id = _pokemonData['id'];
+    final responseWeakness = await http.get(Uri.parse('https://pokeapi.co/api/v2/type/${id}/'));
+
+    if (responseWeakness.statusCode == 200) {
+      // print("OK ${inspect(json.decode(response1.body))}");
+      setState(() {
+        _dataWeakness = json.decode(responseWeakness.body);
       });
     } else {
       throw Exception('Failed to load Pokemon Description');
@@ -237,6 +254,8 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                         spattack: _pokemonData["stats"][3]["base_stat"],
                         spdefense: _pokemonData["stats"][4]["base_stat"],
                         speed: _pokemonData["stats"][5]["base_stat"],
+                        weakness1: StringUtils.capitalize(_dataWeakness['damage_relations']['half_damage_to'][0]['name']) ?? "No Weakness",
+                        weakness2: StringUtils.capitalize(_dataWeakness['damage_relations']['half_damage_to'][1]['name']) ?? "No Weakness",
                       )),
                       SingleChildScrollView(
                           child: EvolutionTab(
@@ -333,7 +352,7 @@ class AboutTab extends StatelessWidget {
  
   IconData _getIconForData(String dataIcon) {
     if (dataIcon == 'Weight') {
-      return Icons.catching_pokemon;
+      return FontAwesomeIcons.weightHanging;
     } else if (dataIcon == 'Height') {
       return Icons.height;
     } else if (dataIcon == 'Category') {
@@ -348,6 +367,9 @@ class AboutTab extends StatelessWidget {
       RichText(
         text: TextSpan(
           children: [
+            TextSpan(
+              text: " ",
+            ),
             WidgetSpan(
               child: Icon(iconData, size: 14),
             ),
@@ -385,6 +407,8 @@ class StatusTab extends StatelessWidget {
   final int spattack;
   final int spdefense;
   final int speed;
+  final String weakness1;
+  final String weakness2;
   // final double height;
   // final String category;
   // final String description;
@@ -396,13 +420,19 @@ class StatusTab extends StatelessWidget {
     required this.spattack,
     required this.spdefense,
     required this.speed,
+    required this.weakness1,
+    required this.weakness2,
     // required this.height,
     // required this.category,
     // required this.description,
   });
  
+  
+
+
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -414,11 +444,11 @@ class StatusTab extends StatelessWidget {
           _buildStatBar('Sp. Atk', spattack),
           _buildStatBar('Sp. Def', spdefense),
           _buildStatBar('Speed', speed),
-          SizedBox(height: 16),
-          Text(
-            'Stats determine certain aspects of battles. Each Pokémon has a value for each stat which grows as they gain levels and can be altered momentarily by effects in battles.',
-            style: TextStyle(fontSize: 16),
-          ),
+          // SizedBox(height: 16),
+          // Text(
+          //   'Stats determine certain aspects of battles. Each Pokémon has a value for each stat which grows as they gain levels and can be altered momentarily by effects in battles.',
+          //   style: TextStyle(fontSize: 16),
+          // ),
           SizedBox(height: 16),
           Text(
             'Weaknesses:',
@@ -428,24 +458,15 @@ class StatusTab extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _buildInfoField('Weakness 1', 'Fire'),
+                child: _buildInfoField(weakness1),
               ),
               SizedBox(width: 16),
               Expanded(
-                child: _buildInfoField('Weakness 2', 'Psychic'),
+                child: _buildInfoField(weakness2),
               ),
             ],
           ),
           SizedBox(height: 16),
-          Text(
-            'Type Defenses:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Add your brief type defenses description here...',
-            style: TextStyle(fontSize: 16),
-          ),
         ],
       ),
     );
@@ -484,14 +505,17 @@ class StatusTab extends StatelessWidget {
     );
   }
  
-  Widget _buildInfoField(String label, String value) {
+  Widget _buildInfoField(String value) {
     return TextFormField(
-      initialValue: value,
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
-      ),
+      textAlign: TextAlign.center,
+        initialValue: value,
+        readOnly: true,
+        style: TextStyle(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
     );
   }
 }
